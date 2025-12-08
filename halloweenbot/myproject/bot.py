@@ -93,6 +93,16 @@ async def create_message(update: Update, context):
     await send_photo(update, context, photo_path)
 
 
+async def save_photo(update: Update, context: CallbackContext):
+    photo = update.message.photo[-1]
+    file = await context.bot.get_file(photo.file_id)
+    user_id = update.message.from_user.id
+    photo_path = f"resources/users/{user_id}/photo.jpg"
+    await file.download_to_drive(photo_path)
+    await send_text(update, context, "Фото підготовлено до роботи")
+
+
+
 # Створюємо Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
 app.add_error_handler(error_handler)
@@ -100,6 +110,7 @@ session.mode = None
 session.image_type = "create_anime"
 
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
+app.add_handler(MessageHandler(filters.PHOTO & ~filters.COMMAND, save_photo))
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
