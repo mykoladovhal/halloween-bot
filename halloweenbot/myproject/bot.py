@@ -46,6 +46,20 @@ async def hello_button (update: Update, context):
     elif data == "stop":
         await send_text(update, context, "Процес зупинено!")
 
+async def create_command (update: Update, context):
+    session.mode = "create"
+    text =  load_message(session.mode)
+    await send_photo(update, context, session.mode)
+    await send_text(update, context, text)
+
+    buttons = {
+        "create_anime": "👧 Аніме",
+        "create_photo": "📸 Фото"
+    }
+
+    await send_text_buttons(update, context,"створення зображень", buttons)
+
+
 
 # Створюємо Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
@@ -53,5 +67,6 @@ session.mode = None
 app.add_error_handler(error_handler)
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
 app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CallbackQueryHandler(hello_button))
 app.run_polling()
