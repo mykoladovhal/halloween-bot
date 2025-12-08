@@ -26,47 +26,54 @@ async def start(update: Update, context):
         "video": "🎬☠️ Страшне Halloween-відео з фото"
     })
 
-async def hello(update: Update,  context):
-    await send_text(update, context, "Привіт!")
-    await send_text(update, context, "Як ти, *друже*?")
-    await send_text(update, context, f"Ти написав: {update.message.text}")
+async def on_message(update: Update,  context):
+   if session.mode == "create":
+       await create_message(update, context)
+   else:
+       await send_text(update, context, "Привіт!")
+       await send_text(update, context, "Ви написали " + update.message.text)
 
-    buttons = {
-        "start": "Запустити!",
-        "stop" : "Зупинити!"
-    }
-
-    await send_text_buttons(update, context,"Кнопки:", buttons)
-
-async def hello_button (update: Update, context):
-    await update.callback_query.answer()
-    data = update.callback_query.data
-    if data == "start":
-        await send_text(update, context, "Процес запущено!")
-    elif data == "stop":
-        await send_text(update, context, "Процес зупинено!")
-
-async def create_command (update: Update, context):
+async def create_command (update, context):
     session.mode = "create"
     text =  load_message(session.mode)
     await send_photo(update, context, session.mode)
     await send_text(update, context, text)
 
-    buttons = {
+
+    await send_text_buttons(update, context,text, {
         "create_anime": "👧 Аніме",
         "create_photo": "📸 Фото"
-    }
+    }, checkbox_key=session.image_type)
 
-    await send_text_buttons(update, context,"створення зображень", buttons)
+async def create_button (update: Update, context):
+    await update.callback_query.answer()
+    query = update.callback_query.data
+    session.image_type = query
+    text = load_message(session.mode)
+    message = update.callback_query.message
 
+    await edit_text_buttons(message, text, {
+        "create_anime": "👧 Аніме",
+        "create_photo": "📸 Фото"
+    }, checkbox_key=session.image_type)
 
+async def create_message (update: Update, context):
+    text = update.message.text
+    user_id = update.message.from_user.id
+    photo_path = f"resources/users/{user_id}/photo.jpg"
+
+    prompt = load_prompt(session.image_type)  # Використовуємо load_prompt замість load_message
+    ai_create_image(prompt=prompt+text, output_path=photo_path)
+    await send_photo(update, context, photo_path)
 
 # Створюємо Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
-session.mode = None
 app.add_error_handler(error_handler)
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, hello))
+session.mode = None
+session.image_type = "create_anime"
+
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_message))
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
-app.add_handler(CallbackQueryHandler(hello_button))
+app.add_handler(CallbackQueryHandler(create_button, pattern="^create_.*"))
 app.run_polling()
