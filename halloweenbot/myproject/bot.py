@@ -145,6 +145,19 @@ async def merge_button(update: Update, context: CallbackContext):
     ai_merge_image(input_image_path_list=session.image_list, prompt=prompt, output_path=result_path)
     await send_photo(update, context, result_path)
 
+
+async def  party_command (update: Update, context: CallbackContext):
+    session.mode = "party"
+    text = load_message(session.mode)
+    await send_photo(update, context, session.mode)
+    await send_text_buttons(update, context, text, {
+        "party_image1": "🐺 Місячне затемнення(перевертень)",
+        "party_image2": "🦇 Прокляте дзеркало(вампір)",
+        "party_image3": "🔮 Відьмине коло(дим і руни)",
+        "party_image4": "🧟 Гниття часу(зомбі)",
+        "party_image5": "😈 Призов демона(демон)"
+    })
+
 # Створюємо Telegram-бота
 app = ApplicationBuilder().token(os.getenv("TELEGRAM_TOKEN")).build()
 app.add_error_handler(error_handler)
@@ -158,6 +171,7 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("image", create_command))
 app.add_handler(CommandHandler("edit", edit_command))
 app.add_handler(CommandHandler("merge", merge_command))
+app.add_handler(CommandHandler("party", party_command))
 app.add_handler(CallbackQueryHandler(create_button, pattern="^create_.*"))
 app.add_handler(CallbackQueryHandler(merge_button, pattern="^merge_.*"))
 app.run_polling()
