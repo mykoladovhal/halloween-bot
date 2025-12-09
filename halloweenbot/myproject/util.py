@@ -113,5 +113,6 @@ class UserSession:
     def __init__(self):
         self.mode = None
         self.image_type = "create_anime"
+        self.image_list = []
 
 session = UserSession()
