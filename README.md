@@ -1,5 +1,10 @@
 # 🎃 Halloween Bot
 
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![Telegram Bot](https://img.shields.io/badge/Telegram-Bot%20API-blue.svg)](https://core.telegram.org/bots/api)
+[![Google Gemini](https://img.shields.io/badge/Google-Gemini%20AI-orange.svg)](https://ai.google.dev/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 Telegram-бот для створення та редагування Halloween-зображень з використанням AI.
 
 ## 📋 Функціональність
